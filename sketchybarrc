@@ -1,0 +1,96 @@
+#!/bin/bash
+
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+
+sketchybar --bar \
+    position=top \
+    height=32 \
+    color=0xcc1e1e2e \
+    border_color=0x00000000 \
+    shadow=off \
+    sticky=on \
+    padding_left=8 \
+    padding_right=8 \
+    notch_width=200 \
+    y_offset=0 \
+    margin=0 \
+    corner_radius=0 \
+    blur_radius=20
+
+sketchybar --default \
+    icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
+    icon.color=0xffcdd6f4 \
+    label.font="JetBrainsMono Nerd Font:Bold:14.0" \
+    label.color=0xffcdd6f4 \
+    padding_left=4 \
+    padding_right=4
+
+sketchybar --add event aerospace_workspace_change
+
+for sid in $(aerospace list-workspaces --all); do
+    sketchybar --add item space.$sid left \
+        --subscribe space.$sid aerospace_workspace_change \
+        --set space.$sid \
+            background.color=0xff89dceb \
+            background.corner_radius=6 \
+            background.height=22 \
+            background.drawing=off \
+            icon.drawing=off \
+            label="$sid" \
+            label.color=0xff1e1e2e \
+            label.font="JetBrainsMono Nerd Font:Bold:13.0" \
+            label.padding_left=8 \
+            label.padding_right=8 \
+            click_script="aerospace workspace $sid" \
+            script="$PLUGIN_DIR/aerospace.sh $sid"
+done
+
+sketchybar --add item front_app center \
+    --set front_app \
+        icon.drawing=off \
+        label.font="JetBrainsMono Nerd Font:Bold:13.0" \
+        label.color=0xffa6adc8 \
+        script="$PLUGIN_DIR/front_app.sh" \
+    --subscribe front_app front_app_switched
+
+sketchybar --add item clock right \
+    --set clock \
+        icon.drawing=off \
+        label.font="JetBrainsMono Nerd Font:Bold:13.0" \
+        label.color=0xff6c7086 \
+        update_freq=30 \
+        script="$PLUGIN_DIR/clock.sh"
+
+# --- Jot: текст-таблетка, клик эмулирует нажатие на tray-иконку ---
+sketchybar --add item jot right \
+    --set jot \
+        icon.drawing=off \
+        label="jot" \
+        label.font="JetBrainsMono Nerd Font:Bold:11.0" \
+        label.color=0xff1e1e2e \
+        label.padding_left=10 \
+        label.padding_right=10 \
+        background.color=0xfff9e2af \
+        background.corner_radius=4 \
+        background.height=20 \
+        padding_left=6 \
+        padding_right=6 \
+        click_script="$PLUGIN_DIR/jot.sh"
+
+# --- Bluetooth: клик открывает нативное меню ---
+sketchybar --add item bluetooth right \
+    --set bluetooth \
+        icon.drawing=off \
+        label="bt" \
+        label.font="JetBrainsMono Nerd Font:Bold:11.0" \
+        label.color=0xff1e1e2e \
+        label.padding_left=10 \
+        label.padding_right=10 \
+        background.color=0xff89dceb \
+        background.corner_radius=4 \
+        background.height=20 \
+        padding_left=6 \
+        padding_right=6 \
+        click_script="$PLUGIN_DIR/bluetooth.sh"
+
+sketchybar --update
